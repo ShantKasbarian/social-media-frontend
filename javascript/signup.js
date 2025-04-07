@@ -66,7 +66,7 @@ document.addEventListener('submit', async function (event) {
             throw new Error(text);
         }
 
-        window.location.href = 'http://localhost/social-media-frontend/login.html';
+        window.location.href = 'http://localhost/social-media-frontend/html/login.html';
     } catch (error) {
         alert(`Error: ${error.message}`);
     }
