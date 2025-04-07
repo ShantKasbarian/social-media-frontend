@@ -20,7 +20,11 @@ document.addEventListener('submit', async function (event) {
             throw new Error(text);
         }
 
-        localStorage.setItem("token", JSON.parse(await response.text()).token);
+        const data = JSON.parse(await response.text());
+
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('username', data.username);
+        window.location.href = 'http://localhost/social-media-frontend/html/feed.html';
     }
     catch(error) {
         alert(`Error: ${error.message}`);
