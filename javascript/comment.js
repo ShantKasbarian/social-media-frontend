@@ -18,32 +18,35 @@ async function getComments(id) {
 
         const postIndex = posts.findIndex(post => post.id === id);
         let parentContainer = document.querySelectorAll('.card-body')[postIndex];
-        // parentContainer.classList.add('collapse');
-        // parentContainer.id = 'commentsCollapse';
 
-        if (contents.length === 0) {
-            //     let childContainer = document.createElement('div');
-            //     childContainer.id = '#commentCollapse';
-            //     childContainer.classList.add('card', 'card-body', 'collapse');
+        let comContainer = document.getElementById(`com-container_${id}`);
+        let child = document.getElementById(`com-container_div_${id}`);
 
-            //     let commentP = document.createElement('p');
-            //     commentP.innerHTML = 'wow such empty be the first to comment';
+        let comContainerP = document.getElementById(`com-container_p_${id}_such_empty`);
 
-            //     childContainer.appendChild(commentP);
-            //     parentContainer.appendChild(childContainer);
+        if (contents.length === 0 && comContainerP === null) {
+            let commentP = document.createElement('p');
+            commentP.id = `com-container_p_${id}_such_empty`;
+            commentP.innerHTML = 'wow such empty be the first to comment';
 
+            comContainer.appendChild(commentP); 
+            return;
+        }
+
+        else if(contents.length === 0 || comContainer.contains(child)) {
             return;
         }
 
         contents.forEach(element => {
             let childContainer = document.createElement('div');
+            childContainer.id = `com-container_div_${id}_child`;
             childContainer.classList.add('card', 'card-body');
 
             let usernameP = document.createElement('p');
             usernameP.innerHTML = element.username;
 
             let commentP = document.createElement('p');
-            commentP = element.content;
+            commentP.innerHTML = element.comment;
 
             let commentedTimeP = document.createElement('p');
             commentedTimeP.innerHTML = element.commentedTime;
@@ -52,11 +55,71 @@ async function getComments(id) {
             childContainer.appendChild(commentP);
             childContainer.appendChild(commentedTimeP);
 
-            parentContainer.appendChild(childContainer);
+            comContainer.appendChild(childContainer);
         });
 
         return;
     } catch (error) {
         alert(`Error: ${error.message}`);
     }
+}
+
+async function postComment(id) {
+    const comment = {
+        'postId': id,
+        'comment': document.getElementById(`comment-input-${id}`).value,
+    };
+
+    const response = await fetch('http://localhost:8000/comment', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${await localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify(comment)
+    });
+
+    try {
+        if(response.status !== 201) {
+            let text = JSON.parse(await response.text()).message;
+            throw new Error(text);
+        }
+        let comContainerP = document.getElementById(`com-container_p_${id}_such_empty`);
+        let comContainer = document.getElementById(`com-container_${id}`);
+
+        if(comContainerP !== null) {
+            comContainerP.remove();
+        }
+
+        let childContainer = document.createElement('div');
+        childContainer.id = `com-container_div_${id}_child`;
+        childContainer.classList.add('card', 'card-body');
+
+        let usernameP = document.createElement('p');
+        usernameP.innerHTML = await localStorage.getItem('username');
+
+        let commentP = document.createElement('p');
+        commentP.innerHTML = comment.comment;
+
+        let commentedTimeP = document.createElement('p');
+        commentedTimeP.innerHTML = 'now';
+
+        childContainer.appendChild(usernameP);
+        childContainer.appendChild(commentP);
+        childContainer.appendChild(commentedTimeP);
+
+        comContainer.appendChild(childContainer);
+
+        const toast = document.getElementById('commentToast');
+        const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toast);
+        toastBootstrap.show();
+
+
+        return;
+
+    } catch (error) {
+        alert(`Error: ${error.message}`);
+    }
+
+
 }
