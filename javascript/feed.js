@@ -1,6 +1,9 @@
 let posts;
+let pageNo = 0;
+let totalPages = 0;
+
 async function loadPosts() {
-    const response = await fetch('http://localhost:8000/post', {
+    const response = await fetch(`http://localhost:8000/post?page=${pageNo}&size=10`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -19,7 +22,9 @@ async function loadPosts() {
         posts = await data.content;
 
         const postsElement = document.getElementById('posts');
-
+        
+        totalPages = data.pageNo;
+        
         posts.forEach(element => {
             let parentDiv = document.createElement('div');
             parentDiv.classList.add('col-sm-6', 'mb-3', 'mb-sm-0');
@@ -114,5 +119,15 @@ async function loadPosts() {
     }
 
 }
+
+window.addEventListener('scroll', () => {
+    if(window.scrollY + window.innerHeight >= document.documentElement.scrollHeight &&
+        pageNo++ <= totalPages
+    ) {
+        loadPosts();
+    }
+
+    return;
+});
 
 loadPosts();
