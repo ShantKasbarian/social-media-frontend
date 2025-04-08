@@ -41,7 +41,7 @@ async function loadPosts() {
 
             let iconDiv = document.createElement('div');
             iconDiv.classList.add('icon-container');
-            iconDiv.style = 'display: flex; gap: 7px; margin-bottom: 10px;';
+            iconDiv.style = 'display: flex; gap: 7px; margin-bottom: 10px; align-items: flex-start;';
             iconDiv.id = 'icon-container';
 
             let likeIcon = document.createElement('img');
@@ -57,9 +57,21 @@ async function loadPosts() {
 
             let commentIcon = document.createElement('img');
             commentIcon.src = '../images/comment.png';
-            commentIcon.style = 'cursor: pointer; flex-grow: none';
+            commentIcon.style = 'cursor: pointer;';
 
             commentIcon.addEventListener('click', () => getComments(postId));
+            
+            let commentInputBox = document.createElement('input');
+            commentInputBox.id = `comment-input-${postId}`;
+            commentInputBox.classList.add('form-control');
+            commentInputBox.style = 'background-color: #fff; max-height: 30px; max-width: 250px';
+
+            let commentButton = document.createElement('button');
+            commentButton.classList.add('btn', 'btn-primary');
+            commentButton.innerHTML = 'Comment';
+            commentButton.style = 'cursor: pointer;';
+            commentButton.id = `comment-button-${postId}`;
+            commentButton.addEventListener('click', () => postComment(postId));
 
             cardBodyDiv.appendChild(usernameP);
             cardBodyDiv.appendChild(cardTextP);
@@ -68,6 +80,9 @@ async function loadPosts() {
             iconDiv.appendChild(likeIcon);
             iconDiv.appendChild(likeCount);
             iconDiv.appendChild(commentIcon);
+            iconDiv.appendChild(commentInputBox);
+            iconDiv.appendChild(commentButton);
+
             commentIcon.setAttribute('data-bs-toggle', 'collapse');
             const targetId = `commentContainer_${element.id}`;
             commentIcon.setAttribute('data-bs-target', `#${targetId}`);
@@ -81,12 +96,10 @@ async function loadPosts() {
             childContainer.classList.add('collapse');
 
             let comContainer = document.createElement('div');
-            comContainer.style = 'display: flex;flex-direction: column;gap: 5px;';
+            comContainer.id = `com-container_${postId}`;
+            console.log(`com-container_${postId}`);
+            comContainer.style = 'display: flex;flex-direction: column; gap: 5px;';
 
-            let commentP = document.createElement('p');
-            commentP.innerHTML = 'wow such empty be the first to comment';
-
-            comContainer.appendChild(commentP); 
             childContainer.appendChild(comContainer);
             cardBodyDiv.appendChild(childContainer);
 
