@@ -16,9 +16,8 @@ async function likePost(id) {
         const toast = document.getElementById('likeToast');
         const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toast);
         toastBootstrap.show();
-
-        return;
-    } catch (error) {
+    } 
+    catch (error) {
         alert(`Error: ${error.message}`);
     }
 }

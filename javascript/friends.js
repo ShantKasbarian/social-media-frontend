@@ -1,5 +1,7 @@
+let friendsPageNo = 0;
+
 async function getFriends() {
-    const response = await fetch('http://localhost:8000/friend', {
+    const response = await fetch(`http://localhost:8000/friend?page=${friendsPageNo}&size=10`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -14,15 +16,23 @@ async function getFriends() {
         }
 
         const data = await response.json();
-        const users = data.content;
-        console.log(users);
+        friendsPageNo = data.pageNo;
+
+        const users = data.content;        
+
+        const list = document.getElementById('friends');
+        
+        let listItem = document.getElementById(`list-item-container-pageNo-${friendsPageNo}`);
+
+        if(listItem !== null) {
+            return;
+        }
         
 
         users.forEach(item => {
-            const list = document.getElementById('friends');
-
-            const listItem = document.createElement('li');
+            listItem = document.createElement('li');
             listItem.classList.add('dropdown-item');
+            listItem.id = `list-item-container-pageNo-${friendsPageNo}`;
 
             const link = document.createElement('a');
             link.classList.add('dropdown-item');

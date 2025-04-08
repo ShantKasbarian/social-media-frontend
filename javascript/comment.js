@@ -1,20 +1,25 @@
+let commentPageNo = 0;
+let totalCommentPages = 0;
+
 async function getComments(id) {
-    const response = await fetch(`http://localhost:8000/post/${id}/comments`, {
+    const response = await fetch(`http://localhost:8000/post/${id}/comments?page=${commentPageNo}&size=10`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${localStorage.getItem('token')}`,
         }
     });
-
+    
     try {
         if (!response.ok) {
             let text = JSON.parse(await response.text()).message;
             throw new Error(text);
         }
-
+        
+        
         const data = await response.json();
         let contents = await data.content;
+        totalCommentPages = data.totalCommentPages;
 
         const postIndex = posts.findIndex(post => post.id === id);
         let parentContainer = document.querySelectorAll('.card-body')[postIndex];
@@ -33,14 +38,22 @@ async function getComments(id) {
             return;
         }
 
-        else if(contents.length === 0 || comContainer.contains(child)) {
+        else if(contents.length === 0) {
+            return;
+        }
+        comContainer.style = 'overflow-y: auto';
+
+        let childContainer = document.getElementById(`com-container_div_${id}_child_pageNo_${commentPageNo}`);
+
+        if(childContainer !== null) {
             return;
         }
 
         contents.forEach(element => {
-            let childContainer = document.createElement('div');
-            childContainer.id = `com-container_div_${id}_child`;
+            childContainer = document.createElement('div');
+            childContainer.id = `com-container_div_${id}_child_pageNo_${commentPageNo}`;
             childContainer.classList.add('card', 'card-body');
+            
 
             let usernameP = document.createElement('p');
             usernameP.innerHTML = element.username;
@@ -63,6 +76,15 @@ async function getComments(id) {
         alert(`Error: ${error.message}`);
     }
 }
+
+window.addEventListener('scroll', () => {
+    if(window.scrollY + window.innerHeight >= document.documentElement.scrollHeight && 
+        commentPageNo <= (totalCommentPages - 1)
+    ) {
+        commentPageNo++;
+        getComments();
+    }
+});
 
 async function postComment(id) {
     const comment = {
@@ -120,6 +142,4 @@ async function postComment(id) {
     } catch (error) {
         alert(`Error: ${error.message}`);
     }
-
-
 }
