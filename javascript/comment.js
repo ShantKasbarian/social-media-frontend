@@ -19,13 +19,9 @@ async function getComments(id) {
         
         const data = await response.json();
         let contents = await data.content;
-        totalCommentPages = data.totalCommentPages;
-
-        const postIndex = posts.findIndex(post => post.id === id);
-        let parentContainer = document.querySelectorAll('.card-body')[postIndex];
+        totalCommentPages = data.totalPages;
 
         let comContainer = document.getElementById(`com-container_${id}`);
-        let child = document.getElementById(`com-container_div_${id}`);
 
         let comContainerP = document.getElementById(`com-container_p_${id}_such_empty`);
 
@@ -106,6 +102,7 @@ async function postComment(id) {
             let text = JSON.parse(await response.text()).message;
             throw new Error(text);
         }
+        
         let comContainerP = document.getElementById(`com-container_p_${id}_such_empty`);
         let comContainer = document.getElementById(`com-container_${id}`);
 

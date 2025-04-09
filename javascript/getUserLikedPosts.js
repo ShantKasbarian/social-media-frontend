@@ -1,31 +1,31 @@
-let posts;
-let pageNo = 0;
-let totalPages = 0;
+let likedPosts;
+let totalLikedPostsPages = 0;
+let currentLikedPostsPageNo = 0;
 
-async function loadPosts() {
-    const response = await fetch(`http://localhost:8000/post?page=${pageNo}&size=10`, {
+async function loadLikedPosts() {
+    const response = await fetch(`http://localhost:8000/post/liked?page=${currentLikedPostsPageNo}&size=10`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
     });
 
     try {
-        if (!response.ok) {
+        if(!response.ok) {
             let text = JSON.parse(await response.text()).message;
             throw new Error(text);
         }
 
         const data = await response.json();
 
-        posts = await data.content;
+        likedPosts = await data.content;
+
+        totalLikedPostsPages = data.totalPages;
 
         const postsElement = document.getElementById('posts');
         
-        totalPages = data.totalPages;
-        
-        posts.forEach(element => {
+        likedPosts.forEach(element => {
             let parentDiv = document.createElement('div');
             parentDiv.classList.add('col-sm-6', 'mb-3', 'mb-sm-0');
 
@@ -114,20 +114,20 @@ async function loadPosts() {
         });
 
         return;
-    } catch (error) {
+    } 
+    catch (error) {
         alert(`Error: ${error.message}`);
     }
-
 }
 
 window.addEventListener('scroll', () => {
     if(window.scrollY + window.innerHeight >= document.documentElement.scrollHeight &&
-        pageNo++ <= totalPages
+        currentLikedPostsPageNo++ <= totalLikedPostsPages
     ) {
-        loadPosts();
+        loadLikedPosts();
     }
 
     return;
 });
 
-loadPosts();
+loadLikedPosts();

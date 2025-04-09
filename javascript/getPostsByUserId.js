@@ -1,31 +1,38 @@
-let posts;
-let pageNo = 0;
-let totalPages = 0;
+let currentUserPosts;
+let totalPostsPages = 0;
+let userPostsPageNo = 0;
+let id;
 
-async function loadPosts() {
-    const response = await fetch(`http://localhost:8000/post?page=${pageNo}&size=10`, {
+export default async function getUserPosts(userId) {
+    if (userId === undefined) {
+        userId = await localStorage.getItem('userId');
+    }
+
+    const response = await fetch(`http://localhost:8000/post/user/${userId}?page=${userPostsPageNo}&size=10`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Authorization': `Bearer ${await localStorage.getItem('token')}`
         }
     });
 
+    id = userId;
+
     try {
-        if (!response.ok) {
+        if(!response.ok) {
             let text = JSON.parse(await response.text()).message;
             throw new Error(text);
         }
 
         const data = await response.json();
 
-        posts = await data.content;
+        currentUserPosts = await data.content;
+
+        totalPostsPages = data.totalPages;
 
         const postsElement = document.getElementById('posts');
         
-        totalPages = data.totalPages;
-        
-        posts.forEach(element => {
+        currentUserPosts.forEach(element => {
             let parentDiv = document.createElement('div');
             parentDiv.classList.add('col-sm-6', 'mb-3', 'mb-sm-0');
 
@@ -102,8 +109,7 @@ async function loadPosts() {
 
             let comContainer = document.createElement('div');
             comContainer.id = `com-container_${postId}`;
-            console.log(`com-container_${postId}`);
-            comContainer.style = 'display: flex;flex-direction: column; gap: 5px;';
+            comContainer.style = 'display: flex; flex-direction: column; gap: 5px;';
 
             childContainer.appendChild(comContainer);
             cardBodyDiv.appendChild(childContainer);
@@ -114,20 +120,20 @@ async function loadPosts() {
         });
 
         return;
-    } catch (error) {
+    } 
+    catch (error) {
         alert(`Error: ${error.message}`);
-    }
-
+    }    
 }
 
 window.addEventListener('scroll', () => {
     if(window.scrollY + window.innerHeight >= document.documentElement.scrollHeight &&
-        pageNo++ <= totalPages
+        userPostsPageNo++ <= totalPostsPages
     ) {
-        loadPosts();
+        getUserPosts(id);
     }
 
     return;
 });
 
-loadPosts();
+window.onload = getUserPosts(id);
