@@ -24,6 +24,7 @@ document.addEventListener('submit', async function (event) {
 
         localStorage.setItem('token', data.token);
         localStorage.setItem('username', data.username);
+        localStorage.setItem('userId', data.userId);
         window.location.href = 'http://localhost/social-media-frontend/html/feed.html';
     }
     catch(error) {
