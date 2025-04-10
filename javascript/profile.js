@@ -24,8 +24,13 @@ async function getCurrentUserProfile() {
         let email = document.getElementById('email');
         email.innerHTML = `email: ${data.email}`;
 
+        let currentUsername = data.username;
+
         let username = document.getElementById('username');
-        username.innerHTML = `username: ${data.username}`;
+        username.innerHTML = `username: ${currentUsername}`;
+
+        let title = document.getElementById('title');
+        title.innerHTML = `${currentUsername} | profile`
 
         return;
 

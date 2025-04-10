@@ -59,6 +59,7 @@ async function loadPosts() {
 
             let likeCount = document.createElement('span');
             likeCount.innerHTML = element.likes;
+            likeCount.id = `like-count-${postId}`;
 
             let commentIcon = document.createElement('img');
             commentIcon.src = '../images/comment.png';

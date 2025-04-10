@@ -13,6 +13,9 @@ async function likePost(id) {
             throw new Error(text);
         }
 
+        let likeCount = document.getElementById(`like-count-${id}`);
+        likeCount.innerHTML = Number(likeCount.innerHTML) + 1;
+
         const toast = document.getElementById('likeToast');
         const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toast);
         toastBootstrap.show();

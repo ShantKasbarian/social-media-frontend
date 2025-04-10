@@ -3,10 +3,8 @@ let totalPostsPages = 0;
 let userPostsPageNo = 0;
 let id;
 
-export default async function getUserPosts(userId) {
-    if (userId === undefined) {
-        userId = await localStorage.getItem('userId');
-    }
+async function getUserPosts() {
+    const userId = await localStorage.getItem('userId-posts');
 
     const response = await fetch(`http://localhost:8000/post/user/${userId}?page=${userPostsPageNo}&size=10`, {
         method: 'GET',
@@ -66,6 +64,7 @@ export default async function getUserPosts(userId) {
 
             let likeCount = document.createElement('span');
             likeCount.innerHTML = element.likes;
+            likeCount.id = `like-count-${postId}`;
 
             let commentIcon = document.createElement('img');
             commentIcon.src = '../images/comment.png';
@@ -130,10 +129,10 @@ window.addEventListener('scroll', () => {
     if(window.scrollY + window.innerHeight >= document.documentElement.scrollHeight &&
         userPostsPageNo++ <= totalPostsPages
     ) {
-        getUserPosts(id);
+        getUserPosts();
     }
 
     return;
 });
 
-window.onload = getUserPosts(id);
+getUserPosts();

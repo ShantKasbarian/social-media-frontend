@@ -34,9 +34,23 @@ async function getFriends() {
             listItem.classList.add('dropdown-item');
             listItem.id = `list-item-container-pageNo-${friendsPageNo}`;
 
-            const link = document.createElement('a');
+            let userId = item.userId;
+            const currentUserId = localStorage.getItem('userId');
+
+            if(userId === currentUserId) {
+                userId = item.friendId;
+            }
+
+            const link = document.createElement('button');
             link.classList.add('dropdown-item');
-            link.href = 'http://localhost/social-media-frontend/html/profile.html';
+            link.id = `link-user-${userId}`;
+            link.dataset.userId = userId;
+            link.type = 'reset';
+
+            link.addEventListener('click', () => {
+                localStorage.setItem('userId-posts', userId);
+                window.location.href = 'http://localhost/social-media-frontend/html/userProfile.html'; 
+            });
             
             let currentUserUsername = localStorage.getItem('username');
             let username = item.username;
