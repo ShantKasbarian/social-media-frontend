@@ -1,12 +1,18 @@
+let searchResultsPageNo = 0;
+let searchResultsTotalPages;
+let input;
+let searchResults;
+
 async function getSearchResults() {
-    const input = await localStorage.getItem('item-to-search');
+    debugger
+    input = await localStorage.getItem('item-to-search');
 
     if(input === null || input === undefined) {
-        alert('Error: the name of the resource you are searchin for cannot be empty');
+        alert('Error: the name of the resource you are searching for cannot be empty');
         return;
     }
 
-    const response = await fetch(`http://loclhost:8000/user/${input}/search`, {
+    const response = await fetch(`http://localhost:8000/user/${input}/search?page=${searchResultsPageNo}&size=5`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -23,7 +29,7 @@ async function getSearchResults() {
         const data = await response.json();
         searchResultsTotalPages = data.totalPages;
 
-        let searchResults = await data.content;
+        searchResults = await data.content;
         let searchResultsContainer = document.getElementById('results');
 
         if(searchResults.length === 0) {
@@ -34,18 +40,42 @@ async function getSearchResults() {
             return;
         }
 
-        data.forEach(element => {
-            let result = document.createElement('a');
-            result.innerHTML = element.username;
+        let html = '';
 
-            searchResultsContainer.appendChild(result);
+        searchResults.forEach(element => {
+            html += 
+            `<button onclick="getUserPostsById('${element.id}')" type="reset" style="border: transparent; background: #fff;">
+                <div class="card" style="width: 18rem;">
+                    <div class="card-body" style="display: flex; flex-direction: column">
+                        <p>username: ${element.username}</p>
+                        <P>name: ${element.name}</p>
+                        <p>lastname: ${element.lastname}</p>
+                    </div>
+                </div>
+            </button>`;
         });
+
+        searchResultsContainer.innerHTML = html;
 
     } catch (error) {
         alert(`Error: ${error.message}`);
     }
 }
 
-window.onclose(localStorage.removeItem('item-to-search'));
+window.addEventListener('close', () => {
+    localStorage.removeItem('item-to-search')
+});
+
+window.addEventListener('scroll', () => {
+    if(window.scrollY + window.innerHeight >= document.documentElement.scrollHeight &&
+        searchResultsPageNo++ <= searchResultsTotalPages && 
+        (searchResults !== null || searchResults !== undefined) &&
+        searchResults.length === 5
+    ) {
+        getSearchResults();
+    }
+
+    return;
+});
 
 getSearchResults();
