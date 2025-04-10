@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>profile</title>
+  <title id="title"></title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
@@ -106,14 +106,12 @@
   
     <div id = "posts" class="d-flex flex-column justify-content-center align-items-center gap-4"  style="
      margin-bottom: auto;"
-      onload="getPosts()">
+      id="posts-container">
     </div>
     
     <div class="collapse" id="comments">
     </div>
   </div>
-  
-
 
   <div class="toast-container position-fixed bottom-0 end-0 p-3">
     <div id="likeToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
@@ -137,18 +135,15 @@
     </div>
   </div>
 
+  <script>
+    window.addEventListener('close', () => {
+      localStorage.removeItem('userId-posts');
+    });
+  </script>
   <script src="../javascript/profile.js"></script>
   <script src="../javascript/comment.js"></script>
   <script src="../javascript/likePost.js"></script>
-  <script type="module" src="../javascript/getPostsByUserId.js">
-    import { getPostsByUserId } from './getPostsByUserId.js';
-
-    window.onload = function getPosts() {
-      const userId = localStorage.getItem('userId');
-      console.log(userId)
-      getPostsByUserId(userId);
-    }
-  </script>
+  <script src="../javascript/getPostsByUserId.js"></script>
   <script src="../javascript/changeUsername.js"></script>
   <script src="../javascript/changeEmail.js"></script>
   <script src="../javascript/changePassword.js"></script>

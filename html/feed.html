@@ -30,8 +30,8 @@
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <form class="d-flex" role="search">
-            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-            <button class="btn btn-outline-success" type="submit">Search</button>
+            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" id="search-input">
+            <button class="btn btn-outline-success" type="reset" onclick="search()">Search</button>
           </form>
 
           <ul class="navbar-nav ms-auto mb-2 mb-lg-0 gap-2">
@@ -46,9 +46,9 @@
 
             <li class="nav-item">
               <a href="http://localhost/social-media-frontend/html/currentUserProfile.html"
-                target="_blank"
+                target="_blank" type="reset" onclick="myProfile()"
                 style="background-color: transparent; border: none; color: #fff; text-decoration: none; padding: 10px 20px;">
-                me
+                Me
               </a>
 
               <a href="http://localhost/social-media-frontend/html/likedPosts.html"
@@ -153,6 +153,20 @@
     </div>
   </div>
 
+  <script>
+    async function search() {
+
+      localStorage.setItem('item-to-search', await document.getElementById('search-input').value);
+      window.location.href = 'http://localhost/social-media-frontend/html/searchResults.html';
+    }
+  </script>
+  <script>
+    async function myProfile() {
+      const userId = await localStorage.getItem('userId');
+      localStorage.setItem('userId-posts', userId);
+      window.location.href = 'http://localhost/social-media-frontend/html/currentUserProfile.html';
+    }
+  </script>
   <script src="../javascript/feed.js"></script>
   <script src="../javascript/post.js"></script>
   <script src="../javascript/friends.js"></script>
