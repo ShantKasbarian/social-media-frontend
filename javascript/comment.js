@@ -1,11 +1,18 @@
-let commentPageNo = 0;
-let totalCommentPages;
+// let commentPageNo = 0;
+// let totalCommentPages;
 let postId;
-let commentPageSize = 3;
-let isCommentLoading = false;
+// let isCommentLoading = false;
+
+const commentMap = new Map();
 
 async function getComments(id) {
-    const response = await fetch(`http://localhost:8000/post/${id}/comments?page=${commentPageNo}&size=${commentPageSize}`, {
+    let commentPageNo = commentMap.get(id)?.commentPageNo;
+
+    if(commentPageNo === null || commentPageNo === undefined) {
+        commentPageNo = 0;
+    }
+
+    const response = await fetch(`http://localhost:8000/post/${id}/comments?page=${commentPageNo}&size=3`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -24,6 +31,15 @@ async function getComments(id) {
         const data = await response.json();
         let contents = await data.content;
         totalCommentPages = data.totalPages;
+
+
+        if(commentMap.get(id) === null || commentMap.get(id) === undefined) {
+            commentMap.set(id, {
+                commentPageNo: 0,
+                totalCommentPages: data.totalPages,
+                isCommentLoading: false
+            });
+        }
 
         let comContainer = document.getElementById(`com-container_${id}`);
 
@@ -95,11 +111,18 @@ async function getComments(id) {
 
 var checkIsAtBottom = async function (maindiv) {
     const isAtBottom = maindiv.scrollTop + maindiv.clientHeight >= maindiv.scrollHeight;
-    if (isAtBottom && !isCommentLoading) {
-        isCommentLoading = true;
-        ++commentPageNo;
+    const element = commentMap.get(postId);
 
-        if (commentPageNo > (totalCommentPages - 1)) {
+    if(element === null || element === undefined) {
+        return;
+    }
+
+    if (isAtBottom && !element.isCommentLoading) {
+        isCommentLoading = true;
+        let page = element.commentPageNo;
+        commentMap.get(postId).commentPageNo = ++page;
+
+        if (page > (element.totalCommentPages - 1)) {
             return;
         }
 

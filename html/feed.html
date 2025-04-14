@@ -35,25 +35,26 @@
           </form>
 
           <ul class="navbar-nav ms-auto mb-2 mb-lg-0 gap-2">
-            <li class="nav-item dropdown" onclick="getFriends()">
-              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"
-                style="color: #fff">
-                My Friends
-              </a>
-
-              <ul class="dropdown-menu" id="friends" style="overflow-y: auto; max-height: 100px;"></ul>
-            </li>
-
-            <li class="nav-item dropdown" onclick="getPendingFriendRequests()">
-              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"
-                style="color: #fff;" id="pending-friend-requests-dropdown">
-                Pending Friend Requests
-              </a>
-
-              <ul class="dropdown-menu" id="pending-friend-requests-container" style="overflow-y: auto; max-height: 150px; width: 355px;"></ul>
-            </li>
-
             <li class="nav-item">
+
+              <li class="nav-item dropdown" onclick="getFriends()">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"
+                  style="color: #fff">
+                  My Friends
+                </a>
+  
+                <ul class="dropdown-menu" id="friends" style="overflow-y: auto; max-height: 100px;"></ul>
+              </li>
+  
+              <li class="nav-item dropdown" onclick="getPendingFriendRequests()">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"
+                  style="color: #fff;" id="pending-friend-requests-dropdown">
+                  Pending Friend Requests
+                </a>
+  
+                <ul class="dropdown-menu" id="pending-friend-requests-container" style="overflow-y: auto; max-height: 150px; width: 355px;"></ul>
+              </li>
+
               <a href="http://localhost/social-media-frontend/html/currentUserProfile.html"
                 target="_blank" type="reset" onclick="myProfile()"
                 style="background-color: transparent; border: none; color: #fff; text-decoration: none; padding: 10px 20px;">
@@ -92,9 +93,7 @@
                   </div>
                 </div>
               </div>
-            </li>
-
-            <li class="nav-item">
+              
               <button type="button" class="btn btn-danger" data-bs-toggle="modal"
                 data-bs-target="#logout">logout</button>
               <div class="modal fade" id="logout" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -115,6 +114,7 @@
                 </div>
               </div>
             </li>
+
           </ul>
         </div>
       </div>

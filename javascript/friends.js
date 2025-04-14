@@ -220,7 +220,7 @@ async function getPendingFriendRequests() {
 
             listItem = document.createElement('li');
             listItem.classList.add('dropdown-item');
-            listItem.id = `list-item-container-pageNo-${pendingFriendRequestsPageNo}`;
+            listItem.id = `pending-friend-requests-item-container-pageNo-${pendingFriendRequestsPageNo}`;
             listItem.style = 'display: flex; flex-direction: row; gap: 5px;';
 
 
