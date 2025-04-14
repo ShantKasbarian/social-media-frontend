@@ -41,7 +41,16 @@
                 My Friends
               </a>
 
-              <ul class="dropdown-menu" id="friends"></ul>
+              <ul class="dropdown-menu" id="friends" style="overflow-y: auto; max-height: 100px;"></ul>
+            </li>
+
+            <li class="nav-item dropdown" onclick="getPendingFriendRequests()">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"
+                style="color: #fff;" id="pending-friend-requests-dropdown">
+                Pending Friend Requests
+              </a>
+
+              <ul class="dropdown-menu" id="pending-friend-requests-container" style="overflow-y: auto; max-height: 150px; width: 355px;"></ul>
             </li>
 
             <li class="nav-item">
@@ -149,6 +158,28 @@
       </div>
       <div class="toast-body">
         comment successful
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="acceptFriendRequestToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header">
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body">
+        Friend request accepted
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="declineFriendRequestToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header">
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body">
+        Friend request declined
       </div>
     </div>
   </div>

@@ -103,8 +103,7 @@ async function loadPosts() {
 
             let comContainer = document.createElement('div');
             comContainer.id = `com-container_${postId}`;
-            console.log(`com-container_${postId}`);
-            comContainer.style = 'display: flex;flex-direction: column; gap: 5px;';
+            comContainer.style = 'display: flex; flex-direction: column; gap: 5px; overflow-y: auto; max-height: 300px;';
 
             childContainer.appendChild(comContainer);
             cardBodyDiv.appendChild(childContainer);
