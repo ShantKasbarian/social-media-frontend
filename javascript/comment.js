@@ -1,71 +1,11 @@
 let commentPageNo = 0;
-let totalCommentPages = 0;
-// let postId;
-// let isLoading;
-// let commentsObserver;
-
-// document.addEventListener('DOMContentLoaded', () => {
-//     initCommentsObserver();
-//     getComments(postId);
-// });
-
-// function initCommentsObserver() {
-//     if (commentsObserver) {
-//         commentsObserver.disconnect();
-//     }
-
-//     commentsObserver = new IntersectionObserver(handleIntersection, {
-//             root: null,
-//             rootMargin: "10px",
-//             threshold: 0.1
-//         }
-//     );
-
-//     const observeTrigger = document.getElementById(`object-to-observe-${postId}`);
-
-//     if (observeTrigger) {
-//         commentsObserver.observe(observeTrigger);
-//     }
-// }
-
-// function handleIntersection(entries) {
-//     entries.forEach(entry => {
-//         if(entry.isIntersecting && commentPageNo <= (totalCommentPages - 1) && !isLoading) {
-//             commentPageNo++;
-//             getComments(postId);
-//         }
-//     });
-// }
-
-// function updateObserverTarget() {
-//     const oldTrigger = document.getElementById(`object-to-observe-${postId}`);
-//     if (oldTrigger) {
-//         oldTrigger.remove();
-//     }
-
-//     if (hasMoreComments) {
-//       const trigger = document.createElement('div');
-//       trigger.className = 'object-to-observe';
-//       trigger.style.height = '1px';
-//       trigger.style.visibility = 'hidden';
-//       document.getElementById(`object-to-observe-${postId}`).appendChild(trigger);
-//       initCommentsObserver();
-//     }
-//   }
-  
-//   function removeObserverTrigger() {
-//     const trigger = document.getElementById(`object-to-observe-${postId}`);
-//     if (trigger) trigger.remove();
-//   }
+let totalCommentPages;
+let postId;
+let commentPageSize = 3;
+let isCommentLoading = false;
 
 async function getComments(id) {
-    // if(isLoading) {
-    //     return;
-    // }
-
-    // isLoading = true;
-
-    const response = await fetch(`http://localhost:8000/post/${id}/comments?page=${commentPageNo}&size=3`, {
+    const response = await fetch(`http://localhost:8000/post/${id}/comments?page=${commentPageNo}&size=${commentPageSize}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -89,7 +29,7 @@ async function getComments(id) {
 
         let comContainerP = document.getElementById(`com-container_p_${id}_such_empty`);
 
-        if (contents.length === 0 && comContainerP === null) {
+        if (contents.length === 0 && comContainerP === null && !comContainer.hasChildNodes()) {
             let commentP = document.createElement('p');
             commentP.id = `com-container_p_${id}_such_empty`;
             commentP.innerHTML = 'wow such empty be the first to comment';
@@ -102,15 +42,11 @@ async function getComments(id) {
             return;
         }
 
-        comContainer.style = 'overflow-y: auto; max-height: 300px;';
-
         let childContainer = document.getElementById(`com-container_div_${id}_child_pageNo_${commentPageNo}`);
 
         if (childContainer !== null) {
             return;
         }
-
-        // let objectToObserve;
 
         contents.forEach(element => {
             childContainer = document.createElement('div');
@@ -130,38 +66,47 @@ async function getComments(id) {
             childContainer.appendChild(commentP);
             childContainer.appendChild(commentedTimeP);
 
-            comContainer.appendChild(childContainer);
-            
-            // objectToObserve = document.createElement('div');
-            // objectToObserve.id = `object-to-observe-${id}`;
-            // objectToObserve.style = 'display: none;';
-        });
-        
-        // comContainer.appendChild(objectToObserve);
 
-        // const observer = new IntersectionObserver((entries) => {
-        //     entries.forEach(entry => {
-        //         if(entry.isIntersecting && commentPageNo <= (totalCommentPages - 1)) {
-        //             commentPageNo++;
-        //             getComments(postId);
-        //         }
-        //     });
-        
-        // }, {
-        //     root: comContainer,
-        //     rootMargin: "10px",
-        //     threshold: 0
-        // });
-        
-        // observer.observe(objectToObserve);
+            if (comContainer.lastElementChild) {
+                comContainer.insertBefore(childContainer, comContainer.lastElementChild);
+            } else {
+                comContainer.appendChild(childContainer);
+            }
+
+        });
+
+        comContainer.addEventListener('scroll', function (event) {
+            var objectToObserve = document.getElementById(`object-to-observe-${id}`);
+
+            if (objectToObserve === null) {
+                objectToObserve = document.createElement('div');
+                objectToObserve.id = `object-to-observe-${id}`;
+                comContainer.appendChild(objectToObserve);
+                return;
+            }
+            
+            checkIsAtBottom(comContainer);
+        });
 
     } catch (error) {
         alert(`Error: ${error.message}`);
     }
-    // finally {
-    //     isLoading = false;
-    // }
 }
+
+var checkIsAtBottom = async function (maindiv) {
+    const isAtBottom = maindiv.scrollTop + maindiv.clientHeight >= maindiv.scrollHeight;
+    if (isAtBottom && !isCommentLoading) {
+        isCommentLoading = true;
+        ++commentPageNo;
+
+        if (commentPageNo > (totalCommentPages - 1)) {
+            return;
+        }
+
+        await getComments(postId);
+        isCommentLoading = false;
+    }
+};
 
 async function postComment(id) {
     const comment = {

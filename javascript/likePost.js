@@ -1,6 +1,6 @@
 async function likePost(id) {
     const response = await fetch(`http://localhost:8000/post/${id}/like`, {
-        method: 'PUT',
+        method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${localStorage.getItem('token')}`

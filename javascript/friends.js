@@ -1,7 +1,13 @@
 let friendsPageNo = 0;
+let friendsTotalPages;
+let isFriendsLoading = false;
+
+let friendRequestsTotalPages;
+let pendingFriendRequestsPageNo = 0;
+let isFriendRequestsLoading = false;
 
 async function getFriends() {
-    const response = await fetch(`http://localhost:8000/friend?page=${friendsPageNo}&size=10`, {
+    const response = await fetch(`http://localhost:8000/friend?page=${friendsPageNo}&size=3`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -16,7 +22,7 @@ async function getFriends() {
         }
 
         const data = await response.json();
-        friendsPageNo = data.pageNo;
+        friendsTotalPages = data.totalPages;
 
         const users = data.content;        
 
@@ -28,6 +34,7 @@ async function getFriends() {
             return;
         }
         
+        const currentUserId = localStorage.getItem('userId');
 
         users.forEach(item => {
             listItem = document.createElement('li');
@@ -35,7 +42,6 @@ async function getFriends() {
             listItem.id = `list-item-container-pageNo-${friendsPageNo}`;
 
             let userId = item.userId;
-            const currentUserId = localStorage.getItem('userId');
 
             if(userId === currentUserId) {
                 userId = item.friendId;
@@ -64,9 +70,37 @@ async function getFriends() {
             listItem.appendChild(link);
             list.appendChild(listItem);
         });
+
+        list.addEventListener('scroll', function (event) {
+            var objectToObserve = document.getElementById('object-to-observe-friends');
+
+            if (objectToObserve === null) {
+                objectToObserve = document.createElement('div');
+                objectToObserve.id = 'object-to-observe-friends';
+                list.appendChild(objectToObserve);
+                return;
+            }
+            
+            checkIsFriendsAtBottom(list);
+        });
     }
     catch (error) {
         alert(`Error: ${error.message}`);
+    }
+};
+
+var checkIsFriendsAtBottom = async function (maindiv) {
+    const isAtBottom = maindiv.scrollTop + maindiv.clientHeight >= maindiv.scrollHeight;
+    if (isAtBottom && !isFriendsLoading) {
+        isFriendsLoading = true;
+        ++friendsPageNo;
+
+        if (friendsPageNo > (friendsTotalPages - 1)) {
+            return;
+        }
+
+        await getFriends();
+        isFriendsLoading = false;
     }
 };
 
@@ -98,7 +132,7 @@ async function addFriend(userId) {
 
 async function blockUser(userId) {
     const response = await fetch(`http://localhost:8000/user/${userId}/block`, {
-        method: 'PUT',
+        method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${await localStorage.getItem('token')}`
@@ -124,7 +158,7 @@ async function blockUser(userId) {
 
 async function unblockUser(userId) {
     const response = await fetch(`http://localhost:8000/user/${userId}/unblock`, {
-        method: 'PUT',
+        method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${await localStorage.getItem('token')}`
@@ -151,4 +185,161 @@ async function unblockUser(userId) {
     } catch (error) {
         alert(`Error: ${error.message}`);
     }
+}
+
+async function getPendingFriendRequests() {
+    const response = await fetch(`http://localhost:8000/friend/pending?page=${pendingFriendRequestsPageNo}&size=3`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${await localStorage.getItem('token')}`
+        }
+    }); 
+
+    try {
+        if(!response.ok) {
+            let text = JSON.parse(await response.text()).message;
+            throw new Error(text);
+        }
+
+        const data = await response.json();
+        friendRequestsTotalPages = data.totalPages;
+
+        const users = data.content;        
+        
+        let listItem = document.getElementById(`pending-friend-requests-item-pageNo-${pendingFriendRequestsPageNo}`);
+
+        if(listItem !== null) {
+            return;
+        }
+
+        let pendingFriendRequestsContainer = document.getElementById('pending-friend-requests-container');
+        
+        users.forEach(item => {
+            let friendRequestContainer = document.createElement('div');
+
+            listItem = document.createElement('li');
+            listItem.classList.add('dropdown-item');
+            listItem.id = `list-item-container-pageNo-${pendingFriendRequestsPageNo}`;
+            listItem.style = 'display: flex; flex-direction: row; gap: 5px;';
+
+
+            let userId = item.userId;
+            let username = item.username;
+
+            const getUserProfileButton = document.createElement('button');
+            getUserProfileButton.classList.add('dropdown-item');
+            getUserProfileButton.id = `pending-friend-requests-item-pageNo-${pendingFriendRequestsPageNo}`;
+            getUserProfileButton.dataset.userId = userId;
+            getUserProfileButton.type = 'reset';
+
+            getUserProfileButton.addEventListener('click', () => {
+                localStorage.setItem('userId-posts', userId);
+                window.location.href = 'http://localhost/social-media-frontend/html/userProfile.html'; 
+            });
+
+            getUserProfileButton.innerHTML = username;
+
+            let declineFriendRequestButton = document.createElement('button');
+            declineFriendRequestButton.type = 'submit';
+            declineFriendRequestButton.innerHTML = 'Decline';
+            declineFriendRequestButton.className = 'btn btn-danger';
+            declineFriendRequestButton.addEventListener('click', () => {
+                declineFriendRequest(item.id);
+            });
+
+            let acceptFriendRequestButton = document.createElement('button');
+            acceptFriendRequestButton.type = 'submit';
+            acceptFriendRequestButton.className = 'btn btn-primary';
+            acceptFriendRequestButton.innerHTML = 'Accept';
+            acceptFriendRequestButton.addEventListener('click', () => {
+                acceptFriendRequest(item.id);
+            });
+
+            listItem.appendChild(getUserProfileButton);
+            listItem.appendChild(declineFriendRequestButton);
+            listItem.appendChild(acceptFriendRequestButton); 
+
+            friendRequestContainer.appendChild(listItem);
+            pendingFriendRequestsContainer.appendChild(friendRequestContainer);
+        });
+
+        pendingFriendRequestsContainer.addEventListener('scroll', function (event) {
+            var objectToObserve = document.getElementById('object-to-observe-pending-friend-requests');
+
+            if (objectToObserve === null) {
+                objectToObserve = document.createElement('div');
+                objectToObserve.id = 'object-to-observe-pending-friend-requests';
+                pendingFriendRequestsContainer.appendChild(objectToObserve);
+                return;
+            }
+            
+            checkIsPendingFriendRequestsAtBottom(pendingFriendRequestsContainer);
+        });
+
+    } catch (error) {
+        alert(`Error: ${error.message}`);
+    }
+}
+
+var checkIsPendingFriendRequestsAtBottom = async function (maindiv) {
+    const isAtBottom = maindiv.scrollTop + maindiv.clientHeight >= maindiv.scrollHeight;
+    if (isAtBottom && !isFriendRequestsLoading) {
+        isFriendRequestsLoading = true;
+        ++pendingFriendRequestsPageNo;
+
+        if (pendingFriendRequestsPageNo > (friendRequestsTotalPages - 1)) {
+            return;
+        }
+
+        await getPendingFriendRequests();
+        isFriendRequestsLoading = false;
+    }
+};
+
+async function declineFriendRequest(requestId) {
+    const response = await fetch(`http://localhost:8000/friend/request/${requestId}/decline`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${await localStorage.getItem('token')}`
+        }
+    });
+
+   try {
+        if(!response.ok) {
+            let text = JSON.parse(await response.text()).message;
+            throw new Error(text);
+        }
+
+        const toast = document.getElementById('declineFriendRequestToast');
+        const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toast);
+        toastBootstrap.show();
+   } catch (error) {
+        alert(`Error: ${error.message}`);
+   } 
+}
+
+async function acceptFriendRequest(requestId) {
+    const response = await fetch(`http://localhost:8000/friend/request/${requestId}/accept`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${await localStorage.getItem('token')}`
+        }
+    });
+
+   try {
+        if(!response.ok) {
+            let text = JSON.parse(await response.text()).message;
+            throw new Error(text);
+        }
+
+        const toast = document.getElementById('acceptFriendRequestToast');
+        const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toast);
+        toastBootstrap.show();
+
+   } catch (error) {
+        alert(`Error: ${error.message}`);
+   } 
 }
